@@ -19,7 +19,7 @@ Este repositorio contiene un MVP funcional con:
 - Sistema de emociones dinámico (feliz, juguetón, calma, tenso, triste, enojado) con indicador visual por color/emoji.
 - Animaciones post-acción (gratitud, entusiasmo, alivio, recuperación, incomodidad, etc.).
 - Regla de interfaz: botones de acciones solo después de eclosionar; botón reiniciar solo cuando la mascota muere.
-- Bot de Telegram con comandos `/start`, `/play` y `/status`.
+- Bot de Telegram con comandos `/start`, `/play`, `/status`, `/users`, `/ban` y `/unban`.
 
 Estructura principal:
 
@@ -33,6 +33,16 @@ Estructura principal:
 - Python 3.10+
 - Bot de Telegram creado con `@BotFather`
 - URL pública para `WEB_APP_URL` (si se usa la Web App desde Telegram)
+
+## Web pública (GitHub Pages)
+
+La Web App de VirtGochi está publicada en:
+
+- `https://alebcasas.github.io/VirtGochi/`
+
+Para el bot de Telegram, usar:
+
+- `WEB_APP_URL=https://alebcasas.github.io/VirtGochi/index.html`
 
 ## Inspiración de diseño clásico
 
