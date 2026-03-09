@@ -1,0 +1,73 @@
+project_name: VirtGochi
+language_primary: python
+secondary_languages:
+  - powershell
+  - batch
+
+goals:
+  - mejorar estabilidad
+  - evitar errores de sintaxis
+  - mantener compatibilidad con Windows
+  - mantener código claro y mantenible
+  - evitar romper funcionalidades existentes
+
+rules:
+  python:
+    style: pep8
+    max_function_length: 50
+    require_docstrings: true
+    avoid_global_variables: true
+    require_error_handling: true
+    forbid_unused_imports: true
+    enforce_modular_design: true
+
+  powershell:
+    require_pipeline_variable: true
+    forbid_property_without_pipeline_object: true
+    correct_pattern_examples:
+      incorrect: "Where-Object { .Name -match 'python' }"
+      correct: "Where-Object { $_.Name -match 'python' }"
+    require_error_action: true
+    safe_process_detection:
+      recommended: "Get-Process python -ErrorAction SilentlyContinue"
+
+  repository_structure:
+    enforce_structure:
+      - src
+      - scripts
+      - assets
+      - docs
+      - config
+    avoid_root_script_sprawl: true
+
+  safety:
+    do_not_remove_features: true
+    do_not_change_external_behavior: true
+    require_explanation_for_changes: true
+
+  refactoring:
+    remove_duplicate_code: true
+    simplify_complex_logic: true
+    detect_dead_code: true
+
+  dependencies:
+    enforce_requirements_txt: true
+    forbid_unused_dependencies: true
+
+  logging:
+    prefer_logging_over_print: true
+
+  documentation:
+    require_readme: true
+    require_installation_instructions: true
+
+linting:
+  python_tools:
+    - flake8
+    - black
+  powershell_tools:
+    - PSScriptAnalyzer
+
+platform:
+  primary: windows
+  ensure_windows_compatibility: true
