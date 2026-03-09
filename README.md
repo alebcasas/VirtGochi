@@ -50,31 +50,6 @@ Estructura principal:
    python bot.py
    ```
 
-## Subida a GitHub (paso a paso)
-
-1. Inicializar Git (si aún no está inicializado):
-
-   ```bash
-   git init
-   ```
-
-2. Agregar cambios y crear commit:
-
-   ```bash
-   git add .
-   git commit -m "feat: base inicial de VirtGochi (bot + web + docs)"
-   ```
-
-3. Crear repositorio vacío en GitHub con nombre `VirtGochi`.
-
-4. Vincular remoto y subir:
-
-   ```bash
-   git branch -M main
-   git remote add origin https://github.com/<tu-usuario>/VirtGochi.git
-   git push -u origin main
-   ```
-
 ## Próximos pasos sugeridos
 
 - Conectar Web App y bot con un backend real (estado persistente).
