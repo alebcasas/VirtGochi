@@ -6,3 +6,6 @@ dist/
 build/
 .DS_Store
 Thumbs.db
+gcm_accounts.txt
+TEST_WRITE.txt
+apps/bot/data/

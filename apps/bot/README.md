@@ -1,3 +1,6 @@
-# Bot de Telegram
+# Bot VirtGochi
 
-Implementa comandos, menú y notificaciones.
+Comandos:
+- /start
+- /play
+- /status
