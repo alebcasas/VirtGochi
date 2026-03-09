@@ -10,6 +10,12 @@ Este repositorio contiene un MVP funcional con:
 - Nombre con máximo de 6 caracteres.
 - Inicio en estado huevo con animación en canvas.
 - Eclosión aleatoria entre 40 y 90 minutos.
+- Rajaduras progresivas del huevo durante los últimos 5 minutos antes de eclosionar.
+- Ruptura total del cascarón al momento de la eclosión.
+- Sistema de necesidades estilo Tamagotchi clásico: hambre, sed, felicidad, energía, higiene, disciplina y salud.
+- Riesgo de enfermedad por descuido (suciedad, baja higiene, hambre/sed críticos, etc.).
+- Acciones de cuidado: alimentar, dar agua, jugar, limpiar, medicina, dormir/despertar, disciplinar y elogiar.
+- Apariencia visual distinta por especie tras eclosionar.
 - Bot de Telegram con comandos `/start`, `/play` y `/status`.
 
 Estructura principal:
@@ -24,6 +30,15 @@ Estructura principal:
 - Python 3.10+
 - Bot de Telegram creado con `@BotFather`
 - URL pública para `WEB_APP_URL` (si se usa la Web App desde Telegram)
+
+## Inspiración Tamagotchi original
+
+Para modelar estas mecánicas se tomó como referencia documentación pública de Tamagotchi (Bandai y Wikipedia):
+
+- Medidores de hambre/felicidad/entrenamiento.
+- Ciclo de vida con evolución según cuidados.
+- Enfermedad por mala higiene y descuido.
+- Necesidad de limpieza, descanso y disciplina.
 
 ## Ejecución rápida del bot
 
