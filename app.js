@@ -23,10 +23,21 @@ const resetBtn = document.getElementById("resetBtn");
 const title = document.getElementById("title");
 const statusEl = document.getElementById("status");
 const alertsEl = document.getElementById("alerts");
+const moodEl = document.getElementById("mood");
 const statsEl = document.getElementById("stats");
 const actionsEl = document.getElementById("actions");
 const canvas = document.getElementById("screen");
 const ctx = canvas.getContext("2d");
+
+const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
+const MOOD_PRESETS = {
+  happy: { emoji: "😊", label: "Feliz", className: "mood-happy" },
+  playful: { emoji: "😜", label: "Juguetón", className: "mood-playful" },
+  calm: { emoji: "😐", label: "Calma", className: "mood-calm" },
+  tense: { emoji: "😣", label: "Tenso", className: "mood-tense" },
+  sad: { emoji: "😢", label: "Triste", className: "mood-sad" },
+  angry: { emoji: "😠", label: "Enojado", className: "mood-angry" }
+};
 
 PETS.forEach((p) => {
   const o = document.createElement("option");
@@ -76,8 +87,51 @@ function getDefaultNeeds() {
     sleeping: false,
     dead: false,
     careMistakes: 0,
-    lastActionAt: Date.now()
+    lastActionAt: Date.now(),
+    mood: "calm"
   };
+}
+
+function setCanvasAnimation(className) {
+  CANVAS_ANIM_CLASSES.forEach((c) => canvas.classList.remove(c));
+  if (!className) return;
+  void canvas.offsetWidth;
+  canvas.classList.add(className);
+}
+
+function getBaseMood(n) {
+  if (n.dead) return "angry";
+  if (n.sick || n.health < 35) return "sad";
+  if (n.hunger < 25 || n.thirst < 25 || n.hygiene < 25 || n.energy < 20) return "tense";
+  if (n.happiness > 78 && n.energy > 35) return "playful";
+  if (n.happiness > 60 && n.health > 60) return "happy";
+  return "calm";
+}
+
+function getCurrentMood(s) {
+  const now = Date.now();
+  if (s?.fx && now < s.fx.until && MOOD_PRESETS[s.fx.mood]) {
+    return {
+      ...MOOD_PRESETS[s.fx.mood],
+      label: s.fx.label || MOOD_PRESETS[s.fx.mood].label,
+      emoji: s.fx.emoji || MOOD_PRESETS[s.fx.mood].emoji,
+      fxText: s.fx.text || ""
+    };
+  }
+  const base = s?.needs?.mood || "calm";
+  return { ...MOOD_PRESETS[base] };
+}
+
+function triggerActionFx(s, config) {
+  s.fx = {
+    mood: config.mood,
+    text: config.text,
+    label: config.label,
+    emoji: config.emoji,
+    anim: config.anim,
+    until: Date.now() + 2600
+  };
+  setCanvasAnimation(config.anim);
 }
 
 function createPet() {
@@ -86,7 +140,7 @@ function createPet() {
   if (name.length > 6) return alert("Máximo 6 caracteres");
 
   const now = Date.now();
-  const minutes = rnd(10, 60);
+  const minutes = rnd(1, 2);
   save({
     petType: petType.value,
     name,
@@ -137,6 +191,7 @@ function tickNeeds(s) {
   }
 
   s.lastTickAt = last + minutes * 60000;
+  n.mood = getBaseMood(n);
   return s;
 }
 
@@ -165,42 +220,106 @@ function action(kind) {
     case "feed":
       n.hunger = clamp(n.hunger + 18);
       n.health = clamp(n.health + 2);
+      triggerActionFx(s, {
+        mood: "happy",
+        label: "Agradecido",
+        emoji: "😋",
+        text: "¡Qué rico! Se ve satisfecho y agradecido.",
+        anim: "pet-anim-grateful"
+      });
       break;
     case "water":
       n.thirst = clamp(n.thirst + 20);
       n.health = clamp(n.health + 1);
+      triggerActionFx(s, {
+        mood: "calm",
+        label: "Aliviado",
+        emoji: "💧",
+        text: "Tomó agua y se ve más aliviado.",
+        anim: "pet-anim-happy"
+      });
       break;
     case "play":
       n.happiness = clamp(n.happiness + 20);
       n.energy = clamp(n.energy - 6);
       n.thirst = clamp(n.thirst - 4);
+      triggerActionFx(s, {
+        mood: "playful",
+        label: "Entusiasmado",
+        emoji: "🎉",
+        text: "¡Se divirtió muchísimo jugando!",
+        anim: "pet-anim-playful"
+      });
       break;
     case "clean":
       n.hygiene = clamp(n.hygiene + 24);
       n.poop = 0;
+      triggerActionFx(s, {
+        mood: "happy",
+        label: "Cómodo",
+        emoji: "✨",
+        text: "Está limpio y de mejor humor.",
+        anim: "pet-anim-happy"
+      });
       break;
     case "medicine":
       if (n.sick) {
         n.sick = false;
         n.health = clamp(n.health + 18);
+        triggerActionFx(s, {
+          mood: "happy",
+          label: "Recuperado",
+          emoji: "💊",
+          text: "La medicina funcionó. Se ve recuperado.",
+          anim: "pet-anim-happy"
+        });
       } else {
         n.health = clamp(n.health - 2);
+        triggerActionFx(s, {
+          mood: "tense",
+          label: "Incómodo",
+          emoji: "🤢",
+          text: "No necesitaba medicina y no le gustó.",
+          anim: "pet-anim-sick"
+        });
       }
       break;
     case "sleep":
       n.sleeping = !n.sleeping;
       if (!n.sleeping) n.energy = clamp(n.energy + 4);
+      triggerActionFx(s, {
+        mood: n.sleeping ? "calm" : "happy",
+        label: n.sleeping ? "Somnoliento" : "Descansado",
+        emoji: n.sleeping ? "😴" : "🌞",
+        text: n.sleeping ? "Se acomodó para dormir." : "Se despertó con más energía.",
+        anim: "pet-anim-grateful"
+      });
       break;
     case "discipline":
       n.discipline = clamp(n.discipline + 14);
       n.happiness = clamp(n.happiness - 5);
+      triggerActionFx(s, {
+        mood: "tense",
+        label: "Vacilante",
+        emoji: "😬",
+        text: "Entendió el límite, pero quedó algo tenso.",
+        anim: "pet-anim-sick"
+      });
       break;
     case "praise":
       n.happiness = clamp(n.happiness + 8);
       n.discipline = clamp(n.discipline + 4);
+      triggerActionFx(s, {
+        mood: "happy",
+        label: "Motivado",
+        emoji: "🥰",
+        text: "¡Le encantó el elogio!",
+        anim: "pet-anim-happy"
+      });
       break;
   }
 
+  n.mood = getBaseMood(n);
   n.lastActionAt = Date.now();
   s.lastTickAt = Date.now();
   save(s);
@@ -285,34 +404,77 @@ function drawEgg(t, crackLevel = 0, broken = false) {
 function drawPetBody(x, y, style, t) {
   const bob = Math.sin(t / 140) * 2;
   const yy = y + bob;
-  ctx.fillStyle = style.color;
+  const u = 3;
+  const px = (gx, gy, c) => {
+    ctx.fillStyle = c;
+    ctx.fillRect(x + gx * u, yy + gy * u, u, u);
+  };
+
+  const dark = "#1f2a1f";
+  const light = "#f6fff5";
 
   if (style.shape === "snake") {
-    ctx.fillRect(x - 18, yy - 9, 36, 18);
-    ctx.fillRect(x + 16, yy - 5, 8, 8);
+    // cuerpo enrollado
+    for (let gy = -3; gy <= 2; gy++) {
+      for (let gx = -6; gx <= 4; gx++) {
+        if ((gy === -3 && (gx < -4 || gx > 2)) || (gy === 2 && (gx < -5 || gx > 1))) continue;
+        px(gx, gy, style.color);
+      }
+    }
+    // cabeza y lengua
+    px(5, -1, style.color); px(6, -1, style.color); px(5, 0, style.color); px(6, 0, style.color);
+    px(7, 0, "#ef4f4f");
+    // patrón
+    for (let gx = -5; gx <= 2; gx += 2) px(gx, -1, "#88be62");
   } else if (style.shape === "shell") {
-    ctx.fillRect(x - 15, yy - 11, 30, 22);
-    ctx.fillStyle = "#2f5f2f";
-    ctx.fillRect(x - 10, yy - 7, 20, 14);
-    ctx.fillStyle = style.color;
+    // caparazón
+    for (let gy = -4; gy <= 2; gy++) {
+      for (let gx = -5; gx <= 5; gx++) {
+        if ((gy === -4 && (gx < -3 || gx > 3)) || (gy === 2 && (gx < -4 || gx > 4))) continue;
+        px(gx, gy, "#2f5f2f");
+      }
+    }
+    // patrón caparazón
+    for (let gx = -3; gx <= 3; gx += 2) {
+      px(gx, -2, "#4f8f4f");
+      px(gx, 0, "#4f8f4f");
+    }
+    // cabeza y patas
+    for (let gx = 4; gx <= 6; gx++) px(gx, -1, style.color);
+    px(-4, 3, style.color); px(-2, 3, style.color); px(1, 3, style.color); px(3, 3, style.color);
   } else if (style.shape === "duck") {
-    ctx.fillRect(x - 13, yy - 11, 26, 22);
-    ctx.fillStyle = "#f1a024";
-    ctx.fillRect(x + 12, yy - 4, 8, 5);
-    ctx.fillStyle = style.color;
+    // cuerpo
+    for (let gy = -4; gy <= 2; gy++) {
+      for (let gx = -4; gx <= 4; gx++) {
+        if ((gy === -4 && (gx < -2 || gx > 2)) || (gy === 2 && (gx < -3 || gx > 3))) continue;
+        px(gx, gy, style.color);
+      }
+    }
+    // pico + ala
+    px(5, -1, "#f1a024"); px(6, -1, "#f1a024"); px(5, 0, "#f1a024");
+    px(-1, 0, "#9ad64b"); px(0, 0, "#9ad64b"); px(-1, 1, "#9ad64b");
   } else {
-    ctx.fillRect(x - 12, yy - 12, 24, 24);
+    // base "chibi" para aves/reptiles
+    for (let gy = -4; gy <= 3; gy++) {
+      for (let gx = -4; gx <= 4; gx++) {
+        if ((gy === -4 && (gx < -2 || gx > 2)) || (gy === 3 && (gx < -3 || gx > 3))) continue;
+        px(gx, gy, style.color);
+      }
+    }
+
     if (style.shape === "crest") {
-      ctx.fillRect(x - 2, yy - 18, 4, 6);
+      px(-1, -5, "#f0c419"); px(0, -6, "#f0c419"); px(1, -5, "#f0c419");
     } else if (style.shape === "lizard") {
-      ctx.fillRect(x - 16, yy + 7, 6, 3);
-      ctx.fillRect(x + 10, yy + 7, 6, 3);
+      px(-5, 1, style.color); px(5, 1, style.color);
+      px(-4, 2, style.color); px(4, 2, style.color);
+      px(0, 4, "#6aa74d");
     }
   }
 
-  ctx.fillStyle = style.eye;
-  ctx.fillRect(x - 6, yy - 4, 3, 3);
-  ctx.fillRect(x + 3, yy - 4, 3, 3);
+  // ojos + brillo
+  px(-2, -1, style.eye); px(1, -1, style.eye);
+  px(-2, 0, dark); px(1, 0, dark);
+  px(-2, -2, light); px(1, -2, light);
 }
 
 function drawBaby(t, s) {
@@ -320,9 +482,14 @@ function drawBaby(t, s) {
   ctx.fillStyle = "#1f2a1f";
   ctx.fillRect(0, 150, 240, 4);
   const style = PET_STYLES[s.petType] || { color: "#000", eye: "#fff", shape: "bird" };
+  const mood = getCurrentMood(s);
   drawPetBody(120, 95, style, t);
   ctx.fillStyle = "#1f2a1f";
   ctx.fillText(s.name, 8, 14);
+
+  ctx.font = "14px monospace";
+  ctx.fillText(mood.emoji || "😐", 210, 16);
+  ctx.font = "10px monospace";
 }
 
 function render() {
@@ -349,19 +516,37 @@ function render() {
     alertsEl.textContent = remain <= 5 * 60000 ? "⚡ El huevo comenzó a rajarse..." : "";
     statsEl.classList.add("hidden");
     actionsEl.classList.add("hidden");
+    resetBtn.classList.add("hidden");
+    moodEl.classList.add("hidden");
+    setCanvasAnimation("");
   } else if (s.stage === "hatching") {
     title.textContent = `🐣 ${s.name} (${s.petType})`;
     statusEl.textContent = "¡Eclosionando!";
     alertsEl.textContent = "🥚💥 El cascarón se está rompiendo.";
     statsEl.classList.add("hidden");
     actionsEl.classList.add("hidden");
+    resetBtn.classList.add("hidden");
+    moodEl.classList.add("hidden");
   } else {
     const n = s.needs;
+    n.mood = getBaseMood(n);
+    const mood = getCurrentMood(s);
     title.textContent = `${n.dead ? "💀" : "🐾"} ${s.name} (${s.petType})`;
     statusEl.textContent = n.sleeping ? "Durmiendo" : "Despierto";
-    alertsEl.textContent = getAlerts(s);
+    alertsEl.textContent = mood.fxText || getAlerts(s);
+    moodEl.classList.remove("hidden", "mood-happy", "mood-playful", "mood-calm", "mood-tense", "mood-sad", "mood-angry");
+    moodEl.classList.add(mood.className);
+    moodEl.textContent = `${mood.emoji} ${mood.label}`;
     statsEl.classList.remove("hidden");
-    actionsEl.classList.remove("hidden");
+    statsEl.classList.remove("mood-happy", "mood-playful", "mood-calm", "mood-tense", "mood-sad", "mood-angry");
+    statsEl.classList.add(mood.className);
+    if (n.dead) {
+      actionsEl.classList.add("hidden");
+      resetBtn.classList.remove("hidden");
+    } else {
+      actionsEl.classList.remove("hidden");
+      resetBtn.classList.add("hidden");
+    }
     statsEl.innerHTML = [
       statBar("Hambre", n.hunger),
       statBar("Sed", n.thirst),

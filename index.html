@@ -19,7 +19,7 @@
       <input id="petName" maxlength="6" />
 
       <button id="createBtn">Crear huevo</button>
-      <p class="small">Eclosiona entre 10 y 60 minutos.</p>
+      <p class="small">Eclosiona entre 1 y 2 minutos.</p>
     </section>
 
     <section id="game" class="panel hidden">
@@ -27,6 +27,7 @@
       <canvas id="screen" width="240" height="160"></canvas>
       <p id="status"></p>
       <p id="alerts" class="small"></p>
+      <p id="mood" class="mood-badge hidden">😐 Calma</p>
 
       <div id="stats" class="stats hidden"></div>
 
@@ -41,7 +42,7 @@
         <button data-action="praise">👏 Elogiar</button>
       </div>
 
-      <button id="resetBtn" class="danger">Reiniciar mascota</button>
+      <button id="resetBtn" class="danger hidden">Reiniciar mascota</button>
     </section>
   </div>
 
