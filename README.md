@@ -9,7 +9,7 @@ Este repositorio contiene un MVP funcional con:
 - Selección de 1 mascota entre 10 especies ovíparas.
 - Nombre con máximo de 6 caracteres.
 - Inicio en estado huevo con animación en canvas.
-- Eclosión aleatoria entre 40 y 90 minutos.
+- Eclosión aleatoria entre 10 y 60 minutos.
 - Rajaduras progresivas del huevo durante los últimos 5 minutos antes de eclosionar.
 - Ruptura total del cascarón al momento de la eclosión.
 - Sistema de necesidades estilo Tamagotchi clásico: hambre, sed, felicidad, energía, higiene, disciplina y salud.

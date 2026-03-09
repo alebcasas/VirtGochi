@@ -86,7 +86,7 @@ function createPet() {
   if (name.length > 6) return alert("Máximo 6 caracteres");
 
   const now = Date.now();
-  const minutes = rnd(40, 90);
+  const minutes = rnd(10, 60);
   save({
     petType: petType.value,
     name,
