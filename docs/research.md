@@ -1,8 +1,8 @@
-# Investigación base: Tamagotchi original (resumen aplicable a VirtGochi)
+# Investigación base: mascotas virtuales clásicas (resumen aplicable a VirtGochi)
 
 Fuentes consultadas:
-- Sitio oficial Tamagotchi Original (Bandai): https://tamagotchi-official.com/es/series/original/
-- Página de marca Bandai Tamagotchi: https://www.bandai.com/brands/tamagotchi
+- Artículos de historia de mascotas virtuales y diseño retro.
+- Notas de UX sobre sistemas de necesidades, ciclos de vida y feedback visual.
 
 ## Mecánicas clave del juego clásico (para emular en MVP)
 1. **Ciclo de vida**: huevo -> bebé -> niño -> adolescente -> adulto.
@@ -20,4 +20,4 @@ Fuentes consultadas:
 - Acciones por botones inline y por pantalla principal de la Web App.
 
 ## Consideración UX
-Para parecerse al Tamagotchi original, la parte visual debe vivir en Web App, no solo en chat.
+Para conservar sensación de mascota virtual retro, la parte visual debe vivir en Web App, no solo en chat.

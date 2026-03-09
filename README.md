@@ -1,6 +1,6 @@
 # VirtGochi
 
-Proyecto de mascota virtual para Telegram (**Bot + Web App**), con estilo retro tipo tamagotchi.
+Proyecto de mascota virtual para Telegram (**Bot + Web App**), con estilo retro de consola portátil.
 
 ## Estado actual del proyecto
 
@@ -9,13 +9,16 @@ Este repositorio contiene un MVP funcional con:
 - Selección de 1 mascota entre 10 especies ovíparas.
 - Nombre con máximo de 6 caracteres.
 - Inicio en estado huevo con animación en canvas.
-- Eclosión aleatoria entre 10 y 60 minutos.
+- Eclosión aleatoria entre 1 y 2 minutos.
 - Rajaduras progresivas del huevo durante los últimos 5 minutos antes de eclosionar.
 - Ruptura total del cascarón al momento de la eclosión.
-- Sistema de necesidades estilo Tamagotchi clásico: hambre, sed, felicidad, energía, higiene, disciplina y salud.
+- Sistema de necesidades clásico: hambre, sed, felicidad, energía, higiene, disciplina y salud.
 - Riesgo de enfermedad por descuido (suciedad, baja higiene, hambre/sed críticos, etc.).
 - Acciones de cuidado: alimentar, dar agua, jugar, limpiar, medicina, dormir/despertar, disciplinar y elogiar.
-- Apariencia visual distinta por especie tras eclosionar.
+- Apariencia visual distinta por especie tras eclosionar, con pixel art más detallado (diseño original).
+- Sistema de emociones dinámico (feliz, juguetón, calma, tenso, triste, enojado) con indicador visual por color/emoji.
+- Animaciones post-acción (gratitud, entusiasmo, alivio, recuperación, incomodidad, etc.).
+- Regla de interfaz: botones de acciones solo después de eclosionar; botón reiniciar solo cuando la mascota muere.
 - Bot de Telegram con comandos `/start`, `/play` y `/status`.
 
 Estructura principal:
@@ -31,9 +34,9 @@ Estructura principal:
 - Bot de Telegram creado con `@BotFather`
 - URL pública para `WEB_APP_URL` (si se usa la Web App desde Telegram)
 
-## Inspiración Tamagotchi original
+## Inspiración de diseño clásico
 
-Para modelar estas mecánicas se tomó como referencia documentación pública de Tamagotchi (Bandai y Wikipedia):
+Para modelar estas mecánicas se tomó como referencia documentación pública sobre juegos de mascota virtual:
 
 - Medidores de hambre/felicidad/entrenamiento.
 - Ciclo de vida con evolución según cuidados.
