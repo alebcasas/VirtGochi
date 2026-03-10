@@ -1,85 +1,110 @@
 # VirtGochi
 
-Proyecto de mascota virtual para Telegram (**Bot + Web App**), con estilo retro de consola portátil.
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Telegram Bot](https://img.shields.io/badge/Telegram-Bot-26A5E4)
+![Web App](https://img.shields.io/badge/WebApp-Canvas%202D-6f42c1)
+![Status](https://img.shields.io/badge/Status-MVP-success)
 
-## Estado actual del proyecto
+Mascota virtual estilo retro para Telegram (**Bot + Web App**).  
+El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta su estado desde el bot.
 
-Este repositorio contiene un MVP funcional con:
+## Características principales
 
-- Selección de 1 mascota entre 10 especies ovíparas.
-- Nombre con máximo de 6 caracteres.
-- Inicio en estado huevo con animación en canvas.
-- Eclosión aleatoria entre 1 y 2 minutos.
-- Rajaduras progresivas del huevo durante los últimos 5 minutos antes de eclosionar.
-- Ruptura total del cascarón al momento de la eclosión.
-- Sistema de necesidades clásico: hambre, sed, felicidad, energía, higiene, disciplina y salud.
-- Riesgo de enfermedad por descuido (suciedad, baja higiene, hambre/sed críticos, etc.).
-- Acciones de cuidado: alimentar, dar agua, jugar, limpiar, medicina, dormir/despertar, disciplinar y elogiar.
-- Apariencia visual distinta por especie tras eclosionar, con pixel art más detallado (diseño original).
-- Sistema de emociones dinámico (feliz, juguetón, calma, tenso, triste, enojado) con indicador visual por color/emoji.
-- Animaciones post-acción (gratitud, entusiasmo, alivio, recuperación, incomodidad, etc.).
-- Regla de interfaz: botones de acciones solo después de eclosionar; botón reiniciar solo cuando la mascota muere.
-- Bot de Telegram con comandos `/start`, `/play`, `/status`, `/users`, `/ban` y `/unban`.
+- Selección de 10 especies ovíparas.
+- Nombre de mascota con máximo 6 caracteres.
+- Ciclo inicial huevo -> eclosión -> mascota bebé.
+- Eclosión aleatoria entre 1 y 2 minutos (MVP actual).
+- Sistema de necesidades: hambre, sed, felicidad, energía, higiene, disciplina, salud.
+- Riesgo de enfermedad por descuido.
+- Acciones de cuidado: alimentar, agua, jugar, limpiar, medicina, dormir, disciplinar, elogiar.
+- Sincronización Web App -> bot para comando `/status`.
+- Comandos de moderación: `/users`, `/ban`, `/unban` (solo admins).
 
-Estructura principal:
+## Arquitectura del repositorio
 
-- `apps/web`: frontend simple para la creación/visualización de la mascota.
-- `apps/bot`: bot de Telegram en Python (`python-telegram-bot`).
-- `docs`: notas de arquitectura, reglas y catálogo de mascotas.
-- `server`: documentación inicial del motor de juego.
+```text
+VirtGochi/
+├─ apps/
+│  ├─ bot/          # Bot Telegram en Python
+│  └─ web/          # Frontend Web App (HTML/CSS/JS)
+├─ assets/          # Audio, sprites y recursos visuales
+├─ docs/            # Documentación técnica y funcional
+└─ server/          # Base documental para backend/motor de juego
+```
 
-## Requisitos
+## Tecnologías usadas
 
-- Python 3.10+
-- Bot de Telegram creado con `@BotFather`
-- URL pública para `WEB_APP_URL` (si se usa la Web App desde Telegram)
+- **Python 3.10+**
+- **python-telegram-bot 21.6**
+- **HTML5 + CSS3 + JavaScript (Canvas 2D)**
+- **Telegram Web Apps SDK**
 
-## Web pública (GitHub Pages)
+## Instalación
 
-La Web App de VirtGochi está publicada en:
+### 1) Bot (Python)
+
+```bash
+cd apps/bot
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2) Variables de entorno
+
+Crear `apps/bot/.env`:
+
+```env
+TELEGRAM_BOT_TOKEN=<TOKEN>
+WEB_APP_URL=https://tu-dominio/index.html
+TELEGRAM_ADMIN_USER_IDS=123456789
+```
+
+> Nunca subas tokens reales a GitHub.
+
+### 3) Ejecutar bot
+
+```bash
+cd apps/bot
+python bot.py
+```
+
+### 4) Ejecutar Web App local (desarrollo)
+
+```bash
+python -m http.server 8080 --bind 127.0.0.1 --directory apps/web
+```
+
+## Uso rápido
+
+1. En Telegram: `/start`
+2. Abrir juego con `/play`
+3. Crear mascota en la Web App
+4. Sincronizar con botón **📡 Sincronizar con /status**
+5. Consultar estado con `/status`
+
+## Web publicada
 
 - `https://alebcasas.github.io/VirtGochi/`
 
-Para el bot de Telegram, usar:
+Para Telegram Web App:
 
 - `WEB_APP_URL=https://alebcasas.github.io/VirtGochi/index.html`
 
-## Inspiración de diseño clásico
+## Roadmap sugerido
 
-Para modelar estas mecánicas se tomó como referencia documentación pública sobre juegos de mascota virtual:
+- Persistencia centralizada en backend (SQLite/PostgreSQL).
+- Motor de ticks en servidor con scheduler.
+- Cobertura de pruebas unitarias e integración.
+- CI/CD con lint + tests + build checks.
+- Panel de administración y métricas de uso.
 
-- Medidores de hambre/felicidad/entrenamiento.
-- Ciclo de vida con evolución según cuidados.
-- Enfermedad por mala higiene y descuido.
-- Necesidad de limpieza, descanso y disciplina.
+## Contribuciones
 
-## Ejecución rápida del bot
+1. Haz fork del repositorio.
+2. Crea una rama de feature/fix.
+3. Abre un Pull Request con descripción clara y evidencias de pruebas.
 
-1. Ir a la carpeta del bot:
+## Licencia
 
-   ```bash
-   cd apps/bot
-   ```
-
-2. Instalar dependencias:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Configurar variables de entorno:
-
-   - `TELEGRAM_BOT_TOKEN`
-   - `WEB_APP_URL` (opcional pero recomendado)
-
-4. Ejecutar:
-
-   ```bash
-   python bot.py
-   ```
-
-## Próximos pasos sugeridos
-
-- Conectar Web App y bot con un backend real (estado persistente).
-- Implementar tick de degradación y acciones de cuidado.
-- Añadir tests básicos y pipeline CI.
+Pendiente de definición explícita en el repositorio (recomendado: MIT o Apache-2.0).

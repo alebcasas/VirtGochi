@@ -20,7 +20,7 @@ from telegram import (
     WebAppInfo,
 )
 from telegram.error import Conflict
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 UTC = timezone.utc
 
@@ -174,9 +174,16 @@ async def _ensure_access(update: Update) -> bool:
 
 def _status_text(p: dict[str, Any]) -> str:
     if p.get("stage") == "unselected":
-        return "No tienes mascota aun. Usa /play para crearla."
+        return (
+            "No hay mascota sincronizada aún. Usa /play para abrir la Web App "
+            "y pulsa '📡 Sincronizar con /status'."
+        )
     if p.get("stage") == "egg" and p.get("hatch_at"):
-        rem = _parse_iso_to_utc(p["hatch_at"]) - datetime.now(UTC)
+        try:
+            rem = _parse_iso_to_utc(str(p["hatch_at"])) - datetime.now(UTC)
+        except ValueError:
+            LOGGER.warning("hatch_at inválido en registro de mascota: %s", p.get("hatch_at"))
+            return f"🥚 {p.get('name')} ({p.get('pet_type')}) en etapa huevo."
         m = int(rem.total_seconds() // 60)
         if m <= 0:
             return f"🥚 {p['name']} ({p['pet_type']}) ya deberia eclosionar."
@@ -189,6 +196,35 @@ def _parse_target_user_id(raw_value: str) -> int | None:
     if not candidate.isdigit():
         return None
     return int(candidate)
+
+
+def _sync_pet_from_webapp(user_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    """Persist pet data received from Telegram Web App for a specific user."""
+    allowed_stages = {"egg", "hatching", "baby", "dead", "unselected"}
+
+    pet_type = str(payload.get("pet_type") or "").strip() or None
+    name = str(payload.get("name") or "").strip() or None
+    stage_raw = str(payload.get("stage") or "").strip().lower()
+    stage = stage_raw if stage_raw in allowed_stages else "unselected"
+    hatch_at_raw = str(payload.get("hatch_at") or "").strip()
+    hatch_at: str | None = None
+    if hatch_at_raw:
+        try:
+            hatch_at = _parse_iso_to_utc(hatch_at_raw).isoformat()
+        except ValueError:
+            LOGGER.warning("hatch_at recibido desde Web App no válido: %s", hatch_at_raw)
+
+    data = _load_json(PETS_FILE)
+    key = str(user_id)
+    if key not in data:
+        data[key] = _default_pet_record()
+
+    data[key]["pet_type"] = pet_type
+    data[key]["name"] = name
+    data[key]["stage"] = stage
+    data[key]["hatch_at"] = hatch_at
+    _save_json(PETS_FILE, data)
+    return data[key]
 
 
 def _get_web_app_url() -> str | None:
@@ -292,6 +328,43 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     await update.message.reply_text(_status_text(p))
+
+
+async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.effective_user or not update.effective_message:
+        return
+
+    data_obj = update.effective_message.web_app_data
+    if data_obj is None:
+        return
+
+    try:
+        payload = json.loads(data_obj.data)
+    except JSONDecodeError:
+        LOGGER.warning("WebAppData inválido (JSON): %s", data_obj.data)
+        return
+
+    if payload.get("type") != "pet_sync":
+        return
+
+    pet_payload = payload.get("pet")
+    if not isinstance(pet_payload, dict):
+        LOGGER.warning("WebAppData pet_sync sin objeto pet: %s", payload)
+        return
+
+    try:
+        pet = _sync_pet_from_webapp(update.effective_user.id, pet_payload)
+    except RuntimeError:
+        LOGGER.exception("No se pudo sincronizar mascota desde Web App.")
+        return
+
+    LOGGER.info(
+        "Mascota sincronizada desde Web App para user_id=%s stage=%s name=%s type=%s",
+        update.effective_user.id,
+        pet.get("stage"),
+        pet.get("name"),
+        pet.get("pet_type"),
+    )
 
 
 async def users(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -436,6 +509,7 @@ def main():
     app.add_handler(CommandHandler("users", users))
     app.add_handler(CommandHandler("ban", ban))
     app.add_handler(CommandHandler("unban", unban))
+    app.add_handler(MessageHandler(filters.StatusUpdate.WEB_APP_DATA, webapp_data))
     app.add_error_handler(on_error)
     try:
         app.run_polling(allowed_updates=Update.ALL_TYPES)

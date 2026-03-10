@@ -1,45 +1,49 @@
 # Arquitectura técnica propuesta (MVP)
 
 ## Componentes
-1. **Telegram Bot**
-   - Comandos y menú principal
-   - Autenticación por 	elegram_user_id
-   - Push de notificaciones
 
-2. **Telegram Web App (frontend)**
-   - Canvas 2D (Phaser/Pixi o vanilla Canvas)
-   - Sprites pixel-art + animaciones por estado
-   - HUD con barras de stats
+1. **Telegram Bot (`apps/bot`)**
+   - Registro de usuarios, control de acceso y moderación básica.
+   - Comandos `/start`, `/play`, `/status`, `/users`, `/ban`, `/unban`.
+   - Sincronización de estado recibida desde Web App (`WEB_APP_DATA`).
 
-3. **Servidor de juego**
-   - Modelo de mascota por usuario
-   - Motor temporal (tick cada N minutos)
-   - Reglas de evolución y salud
+2. **Telegram Web App (`apps/web`)**
+   - UI retro en Canvas 2D.
+   - Gestión local de estado (localStorage).
+   - Acciones de cuidado, alertas visuales/sonoras y envío de estado al bot.
 
-4. **Persistencia**
-   - MVP: SQLite
-   - Escalable: PostgreSQL
+3. **Persistencia local del bot (`apps/bot/data`)**
+   - `users.json`: registro de usuarios y estado de baneo.
+   - `pets.json`: estado sincronizado de mascota por usuario.
+
+4. **Activos y documentación**
+   - `assets/`: recursos visuales y audio.
+   - `docs/`: decisiones funcionales, arquitectura y referencias.
+
+## Flujo funcional actual
+
+1. Usuario ejecuta `/start` en Telegram.
+2. Bot registra o actualiza usuario.
+3. Usuario abre Web App con `/play`.
+4. Web App crea mascota y mantiene estado local.
+5. Web App sincroniza datos al bot (`type: "pet_sync"`).
+6. Bot guarda estado y lo expone mediante `/status`.
 
 ## Modelo de estado mínimo
-- stage: egg|baby|child|teen|adult
-- hunger, happiness, energy, hygiene, discipline, health (0-100)
-- is_sick, is_sleeping, poop_count
-- orn_at, last_tick_at, last_interaction_at, care_mistakes
 
-## Motor de degradación
-Cada tick:
-- hambre +8
-- felicidad -6
-- energía -5 (si despierto)
-- higiene -7 (si poop_count > 0)
-- probabilidad de enfermedad según umbrales críticos
+- `stage`: `unselected | egg | hatching | baby | dead`
+- `pet_type`, `name`, `hatch_at`
+- Needs en Web App: `hunger`, `thirst`, `happiness`, `energy`, `hygiene`, `discipline`, `health`, `sick`, `poop`, `sleeping`, `dead`
 
-## API sugerida
-- POST /api/session/telegram
-- GET /api/pet
-- POST /api/action/feed|play|clean|heal|sleep|discipline
-- POST /api/tick (interno/scheduler)
+## Riesgos técnicos detectados
 
-## Despliegue
-- Bot webhook o long polling (MVP: polling)
-- Web App estática + API backend
+- Persistencia dividida (Web App local + bot JSON) sin backend único.
+- Sin tests automáticos ni pipeline CI.
+- Falta de módulo de dominio compartido entre UI y bot.
+
+## Evolución recomendada
+
+- Backend dedicado para estado único de mascota.
+- Scheduler/tick en servidor para degradación temporal real.
+- API versionada para desacoplar bot y Web App.
+- Pruebas unitarias + integración + lint en CI.

@@ -1,1 +1,17 @@
-# 10 mascotas oviparas\n1. Tortuga\n2. Canario\n3. Periquito\n4. Cacatua\n5. Agapornis\n6. Iguana\n7. Geco\n8. Serpiente\n9. Gallina\n10. Pato\n\nReglas:\n- nombre maximo 6 caracteres\n- eclosion aleatoria 40-90 minutos\n
+# Catálogo de mascotas ovíparas
+
+1. Tortuga
+2. Canario
+3. Periquito
+4. Cacatúa
+5. Agapornis
+6. Iguana
+7. Geco
+8. Serpiente
+9. Gallina
+10. Pato
+
+## Reglas actuales (MVP)
+
+- Nombre máximo: 6 caracteres.
+- Eclosión aleatoria: 1 a 2 minutos.
