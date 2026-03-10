@@ -107,4 +107,5 @@ Para Telegram Web App:
 
 ## Licencia
 
-Pendiente de definición explícita en el repositorio (recomendado: MIT o Apache-2.0).
+Este proyecto está bajo la licencia **MIT**.  
+Consulta el archivo [LICENSE](LICENSE) para más detalles.
