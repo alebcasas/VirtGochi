@@ -1,5 +1,9 @@
 const PETS = ["Tortuga", "Canario", "Periquito", "Cacatua", "Agapornis", "Iguana", "Geco", "Serpiente", "Gallina", "Pato"];
 const KEY = "virtgochi_state_v2";
+const GAME_MUSIC_SOURCES = [
+  "assets/audio/virtgochi_theme.wav",
+  "assets/audio/virtgochi_theme.mid"
+];
 
 const PET_STYLES = {
   Tortuga: { color: "#4f8f4f", eye: "#ffffff", shape: "shell" },
@@ -26,8 +30,13 @@ const alertsEl = document.getElementById("alerts");
 const moodEl = document.getElementById("mood");
 const statsEl = document.getElementById("stats");
 const actionsEl = document.getElementById("actions");
+const musicBtn = document.getElementById("musicBtn");
 const canvas = document.getElementById("screen");
 const ctx = canvas.getContext("2d");
+
+let gameMusic = null;
+let musicInitDone = false;
+let musicSourceIndex = 0;
 
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
 const MOOD_PRESETS = {
@@ -45,6 +54,104 @@ PETS.forEach((p) => {
   o.textContent = p;
   petType.appendChild(o);
 });
+
+function tryPlayMusic() {
+  if (!gameMusic) return;
+  const result = gameMusic.play();
+  if (result && typeof result.catch === "function") {
+    result.catch(() => {
+      // El navegador o WebView puede bloquear autoplay hasta interacción.
+    });
+  }
+}
+
+function pickSupportedMusicSource() {
+  const tester = document.createElement("audio");
+  const candidates = [
+    { path: GAME_MUSIC_SOURCES[0], mime: "audio/wav" },
+    { path: GAME_MUSIC_SOURCES[1], mime: "audio/midi" }
+  ];
+
+  const firstSupported = candidates.findIndex((c) => {
+    try {
+      return !!tester.canPlayType(c.mime);
+    } catch {
+      return false;
+    }
+  });
+
+  musicSourceIndex = firstSupported >= 0 ? firstSupported : 0;
+  return candidates[musicSourceIndex].path;
+}
+
+function updateMusicButtonLabel() {
+  if (!musicBtn || !gameMusic) return;
+  musicBtn.textContent = gameMusic.paused ? "🔊 Activar música" : "🔇 Silenciar música";
+}
+
+function tryResumeMusic() {
+  if (!gameMusic || !gameMusic.paused) return;
+  tryPlayMusic();
+  updateMusicButtonLabel();
+  if (!gameMusic.paused) {
+    document.removeEventListener("pointerdown", tryResumeMusic);
+    document.removeEventListener("touchstart", tryResumeMusic);
+    document.removeEventListener("keydown", tryResumeMusic);
+  }
+}
+
+function initGameMusic() {
+  if (musicInitDone) return;
+  musicInitDone = true;
+
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+  }
+
+  gameMusic = new Audio();
+  gameMusic.src = pickSupportedMusicSource();
+  gameMusic.loop = true;
+  gameMusic.volume = 0.35;
+  gameMusic.preload = "auto";
+  gameMusic.playsInline = true;
+
+  gameMusic.addEventListener("error", () => {
+    if (musicSourceIndex < GAME_MUSIC_SOURCES.length - 1) {
+      musicSourceIndex += 1;
+      gameMusic.src = GAME_MUSIC_SOURCES[musicSourceIndex];
+      tryPlayMusic();
+      updateMusicButtonLabel();
+    }
+  });
+
+  // Warmup: autoplay silencioso para aumentar chances en WebView móviles.
+  gameMusic.muted = true;
+  const warmup = gameMusic.play();
+  if (warmup && typeof warmup.then === "function") {
+    warmup.then(() => {
+      gameMusic.muted = false;
+      updateMusicButtonLabel();
+    }).catch(() => {
+      gameMusic.muted = false;
+      tryPlayMusic();
+      updateMusicButtonLabel();
+    });
+  } else {
+    gameMusic.muted = false;
+    tryPlayMusic();
+  }
+
+  updateMusicButtonLabel();
+  document.addEventListener("pointerdown", tryResumeMusic);
+  document.addEventListener("click", tryResumeMusic);
+  document.addEventListener("touchstart", tryResumeMusic, { passive: true });
+  document.addEventListener("keydown", tryResumeMusic);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      tryResumeMusic();
+    }
+  });
+}
 
 function load() {
   try {
@@ -506,6 +613,8 @@ function render() {
 
   setup.classList.add("hidden");
   game.classList.remove("hidden");
+  musicBtn.classList.remove("hidden");
+  updateMusicButtonLabel();
 
   const now = Date.now();
   const remain = (s.hatchAt || now) - now;
@@ -572,6 +681,16 @@ actionsEl.addEventListener("click", (e) => {
   action(btn.dataset.action);
 });
 
+musicBtn.addEventListener("click", () => {
+  if (!gameMusic) return;
+  if (gameMusic.paused) {
+    tryPlayMusic();
+  } else {
+    gameMusic.pause();
+  }
+  updateMusicButtonLabel();
+});
+
 let t = 0;
 function loop() {
   const s = load();
@@ -591,5 +710,6 @@ function loop() {
 }
 
 render();
+initGameMusic();
 setInterval(render, 5000);
 loop();
