@@ -17,7 +17,7 @@ El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta s
 - Sistema de necesidades: hambre, sed, felicidad, energía, higiene, disciplina, salud.
 - Riesgo de enfermedad por descuido.
 - Acciones de cuidado: alimentar, agua, jugar, limpiar, medicina, dormir, disciplinar, elogiar.
-- Música retro de fondo al abrir el juego (prioriza WAV para compatibilidad móvil/WebView, con fallback MIDI).
+- Música retro de fondo al abrir el juego (MP3 largo principal, con fallback WAV/MIDI para mayor compatibilidad).
 - Botón en juego para activar/silenciar música manualmente.
 - Sincronización Web App -> bot para comando `/status`.
 - Comandos de moderación: `/users`, `/ban`, `/unban` (solo admins).
@@ -92,6 +92,14 @@ python -m http.server 8080 --bind 127.0.0.1 --directory apps/web
 Para Telegram Web App:
 
 - `WEB_APP_URL=https://alebcasas.github.io/VirtGochi/index.html`
+
+## Créditos de audio
+
+- Tema principal retro largo (aprox. 3:12): **"Bit Quest"** de **Kevin MacLeod**.
+- Fuente: Wikimedia Commons
+  `https://upload.wikimedia.org/wikipedia/commons/3/3a/Bit_Quest_%28ISRC_USUAN1500073%29.mp3`
+- Licencia: **Creative Commons Attribution 3.0 (CC BY 3.0)**
+  `https://creativecommons.org/licenses/by/3.0`
 
 ## Roadmap sugerido
 
