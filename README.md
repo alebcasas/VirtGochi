@@ -18,7 +18,7 @@ El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta s
 - Riesgo de enfermedad por descuido.
 - Acciones de cuidado: alimentar, agua, jugar, limpiar, medicina, dormir, disciplinar, elogiar.
 - Música retro de fondo al abrir el juego (MP3 largo principal, con fallback WAV/MIDI para mayor compatibilidad).
-- Playlist retro automática con 9 pistas (al terminar una, inicia la siguiente).
+- Playlist retro automática aleatoria con 9 pistas (al terminar una, inicia otra al azar).
 - Botón en juego para activar/silenciar música manualmente.
 - Sincronización Web App -> bot para comando `/status`.
 - Comando `/info` con información del proyecto y enlaces oficiales.

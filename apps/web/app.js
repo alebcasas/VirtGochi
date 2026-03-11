@@ -46,6 +46,15 @@ let musicInitDone = false;
 let currentTrackIndex = 0;
 let userPausedByToggle = false;
 
+function randomTrackIndex(excludeIndex = -1) {
+  if (GAME_MUSIC_PLAYLIST.length <= 1) return 0;
+  let next = excludeIndex;
+  while (next === excludeIndex) {
+    next = Math.floor(Math.random() * GAME_MUSIC_PLAYLIST.length);
+  }
+  return next;
+}
+
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
 const MOOD_PRESETS = {
   happy: { emoji: "😊", label: "Feliz", className: "mood-happy" },
@@ -80,7 +89,7 @@ function loadCurrentTrack() {
 
 function playNextTrack() {
   if (!gameMusic || userPausedByToggle) return;
-  currentTrackIndex = (currentTrackIndex + 1) % GAME_MUSIC_PLAYLIST.length;
+  currentTrackIndex = randomTrackIndex(currentTrackIndex);
   loadCurrentTrack();
   tryPlayMusic();
 }
@@ -111,6 +120,7 @@ function initGameMusic() {
   }
 
   gameMusic = new Audio();
+  currentTrackIndex = randomTrackIndex(-1);
   loadCurrentTrack();
   gameMusic.loop = false;
   gameMusic.volume = 0.35;

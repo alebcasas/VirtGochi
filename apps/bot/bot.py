@@ -191,6 +191,15 @@ def _status_text(p: dict[str, Any]) -> str:
     return f"🐣 {p.get('name')} ({p.get('pet_type')}) etapa: {p.get('stage')}"
 
 
+def _normalize_pet_record(pet: dict[str, Any]) -> dict[str, Any]:
+    """Ensure stored pet records always have required keys for /status."""
+    normalized = _default_pet_record()
+    normalized.update(pet)
+    if normalized.get("stage") not in {"unselected", "egg", "hatching", "baby", "dead"}:
+        normalized["stage"] = "unselected"
+    return normalized
+
+
 def _parse_target_user_id(raw_value: str) -> int | None:
     candidate = raw_value.strip()
     if not candidate.isdigit():
@@ -322,12 +331,13 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         p = _ensure_pet(update.effective_user.id)
+        normalized = _normalize_pet_record(p)
     except RuntimeError:
         LOGGER.exception("No se pudo cargar/crear la mascota del usuario %s.", update.effective_user.id)
         await update.message.reply_text("No se pudo consultar tu mascota en este momento.")
         return
 
-    await update.message.reply_text(_status_text(p))
+    await update.message.reply_text(_status_text(normalized))
 
 
 async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
