@@ -330,6 +330,20 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(_status_text(p))
 
 
+async def info(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await _ensure_access(update):
+        return
+
+    await update.message.reply_text(
+        "Mascota virtual estilo retro para Telegram (Bot + Web App).\n"
+        "El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta su estado desde el bot.\n"
+        "Creado por: Alejandro B. Casas\n"
+        "Desarrollador de aplicaciones webs en Python y Django\n"
+        "Repositorio del proyecto en GitHub: https://github.com/alebcasas/VirtGochi\n"
+        "Para Telegram Web App: https://alebcasas.github.io/VirtGochi/index.html"
+    )
+
+
 async def webapp_data(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.effective_user or not update.effective_message:
         return
@@ -450,6 +464,7 @@ async def post_init(app: Application):
             BotCommand("start", "Registrar o reactivar tu cuenta"),
             BotCommand("play", "Abrir la Web App de VirtGochi"),
             BotCommand("status", "Ver estado de tu mascota"),
+            BotCommand("info", "Ver información del proyecto"),
             BotCommand("users", "Ver usuarios (admin)"),
             BotCommand("ban", "Banear usuario (admin)"),
             BotCommand("unban", "Desbanear usuario (admin)"),
@@ -506,6 +521,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("play", play))
     app.add_handler(CommandHandler("status", status))
+    app.add_handler(CommandHandler("info", info))
     app.add_handler(CommandHandler("users", users))
     app.add_handler(CommandHandler("ban", ban))
     app.add_handler(CommandHandler("unban", unban))

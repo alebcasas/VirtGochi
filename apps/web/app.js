@@ -1,6 +1,12 @@
 const PETS = ["Tortuga", "Canario", "Periquito", "Cacatua", "Agapornis", "Iguana", "Geco", "Serpiente", "Gallina", "Pato"];
 const KEY = "virtgochi_state_v2";
-const GAME_MUSIC_SOURCES = [
+const GAME_MUSIC_PLAYLIST = [
+  "assets/audio/km_bit_quest.mp3",
+  "assets/audio/km_adventure_meme.mp3",
+  "assets/audio/km_video_dungeon_crawl.mp3",
+  "assets/audio/km_8bit_dungeon_boss.mp3",
+  "assets/audio/km_8bit_dungeon_level.mp3",
+  "assets/audio/km_blip_stream.mp3",
   "assets/audio/virtgochi_theme_long.mp3",
   "assets/audio/virtgochi_theme.wav",
   "assets/audio/virtgochi_theme.mid"
@@ -37,7 +43,7 @@ const ctx = canvas.getContext("2d");
 
 let gameMusic = null;
 let musicInitDone = false;
-let musicSourceIndex = 0;
+let currentTrackIndex = 0;
 let userPausedByToggle = false;
 
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
@@ -67,25 +73,16 @@ function tryPlayMusic() {
   }
 }
 
-function pickSupportedMusicSource() {
-  const tester = document.createElement("audio");
-  const candidates = [
-    { path: GAME_MUSIC_SOURCES[0], mime: "audio/mpeg" },
-    { path: GAME_MUSIC_SOURCES[0], mime: "audio/wav" },
-    { path: GAME_MUSIC_SOURCES[1], mime: "audio/wav" },
-    { path: GAME_MUSIC_SOURCES[2], mime: "audio/midi" }
-  ];
+function loadCurrentTrack() {
+  if (!gameMusic) return;
+  gameMusic.src = GAME_MUSIC_PLAYLIST[currentTrackIndex];
+}
 
-  const firstSupported = candidates.findIndex((c) => {
-    try {
-      return !!tester.canPlayType(c.mime);
-    } catch {
-      return false;
-    }
-  });
-
-  musicSourceIndex = firstSupported >= 0 ? firstSupported : 0;
-  return candidates[musicSourceIndex].path;
+function playNextTrack() {
+  if (!gameMusic || userPausedByToggle) return;
+  currentTrackIndex = (currentTrackIndex + 1) % GAME_MUSIC_PLAYLIST.length;
+  loadCurrentTrack();
+  tryPlayMusic();
 }
 
 function updateMusicButtonLabel() {
@@ -114,16 +111,18 @@ function initGameMusic() {
   }
 
   gameMusic = new Audio();
-  gameMusic.src = pickSupportedMusicSource();
-  gameMusic.loop = true;
+  loadCurrentTrack();
+  gameMusic.loop = false;
   gameMusic.volume = 0.35;
   gameMusic.preload = "auto";
   gameMusic.playsInline = true;
 
+  gameMusic.addEventListener("ended", playNextTrack);
+
   gameMusic.addEventListener("error", () => {
-    if (musicSourceIndex < GAME_MUSIC_SOURCES.length - 1) {
-      musicSourceIndex += 1;
-      gameMusic.src = GAME_MUSIC_SOURCES[musicSourceIndex];
+    if (currentTrackIndex < GAME_MUSIC_PLAYLIST.length - 1) {
+      currentTrackIndex += 1;
+      loadCurrentTrack();
       tryPlayMusic();
       updateMusicButtonLabel();
     }

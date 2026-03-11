@@ -5,8 +5,15 @@ Interfaz visual retro con sprites y animaciones.
 ## Audio de fondo (retro)
 
 - La Web App intenta reproducir música al abrir el juego.
-- Fuente principal: `assets/audio/virtgochi_theme_long.mp3` (tema largo).
-- Fallbacks: `assets/audio/virtgochi_theme.wav` y `assets/audio/virtgochi_theme.mid`.
+- Playlist secuencial de 9 pistas (al terminar una, inicia la siguiente).
+- Incluye 6 pistas extra estilo retro/chiptune de Kevin MacLeod:
+  - `km_bit_quest.mp3`
+  - `km_adventure_meme.mp3`
+  - `km_video_dungeon_crawl.mp3`
+  - `km_8bit_dungeon_boss.mp3`
+  - `km_8bit_dungeon_level.mp3`
+  - `km_blip_stream.mp3`
+- Se mantienen además `virtgochi_theme_long.mp3`, `virtgochi_theme.wav` y `virtgochi_theme.mid`.
 - Incluye botón en pantalla para alternar manualmente:
   - `🔊 Activar música`
   - `🔇 Silenciar música`
@@ -20,6 +27,6 @@ Interfaz visual retro con sprites y animaciones.
 
 ## Crédito del audio principal
 
-- Track: **Bit Quest** — Kevin MacLeod.
+- Artista principal: **Kevin MacLeod**.
 - Licencia: **CC BY 3.0**.
-- Fuente: `https://upload.wikimedia.org/wikipedia/commons/3/3a/Bit_Quest_%28ISRC_USUAN1500073%29.mp3`
+- Fuente de referencia: `https://upload.wikimedia.org/wikipedia/commons/3/3a/Bit_Quest_%28ISRC_USUAN1500073%29.mp3`

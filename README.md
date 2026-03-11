@@ -18,8 +18,10 @@ El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta s
 - Riesgo de enfermedad por descuido.
 - Acciones de cuidado: alimentar, agua, jugar, limpiar, medicina, dormir, disciplinar, elogiar.
 - Música retro de fondo al abrir el juego (MP3 largo principal, con fallback WAV/MIDI para mayor compatibilidad).
+- Playlist retro automática con 9 pistas (al terminar una, inicia la siguiente).
 - Botón en juego para activar/silenciar música manualmente.
 - Sincronización Web App -> bot para comando `/status`.
+- Comando `/info` con información del proyecto y enlaces oficiales.
 - Comandos de moderación: `/users`, `/ban`, `/unban` (solo admins).
 
 ## Arquitectura del repositorio
@@ -95,11 +97,18 @@ Para Telegram Web App:
 
 ## Créditos de audio
 
-- Tema principal retro largo (aprox. 3:12): **"Bit Quest"** de **Kevin MacLeod**.
-- Fuente: Wikimedia Commons
-  `https://upload.wikimedia.org/wikipedia/commons/3/3a/Bit_Quest_%28ISRC_USUAN1500073%29.mp3`
+- Todas las pistas de la playlist son de **Kevin MacLeod** (estilo retro/chiptune), obtenidas vía Wikimedia Commons.
+- Pistas principales agregadas:
+  - `km_bit_quest.mp3`
+  - `km_adventure_meme.mp3`
+  - `km_video_dungeon_crawl.mp3`
+  - `km_8bit_dungeon_boss.mp3`
+  - `km_8bit_dungeon_level.mp3`
+  - `km_blip_stream.mp3`
 - Licencia: **Creative Commons Attribution 3.0 (CC BY 3.0)**
   `https://creativecommons.org/licenses/by/3.0`
+- Fuente base (ejemplo):
+  `https://upload.wikimedia.org/wikipedia/commons/3/3a/Bit_Quest_%28ISRC_USUAN1500073%29.mp3`
 
 ## Roadmap sugerido
 

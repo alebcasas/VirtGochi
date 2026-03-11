@@ -4,6 +4,7 @@ Comandos:
 - /start
 - /play
 - /status
+- /info
 - /users (admin)
 - /ban <telegram_user_id> (admin)
 - /unban <telegram_user_id> (admin)
@@ -69,7 +70,17 @@ Notas:
 
 ## Mejoras aplicadas para estabilidad en Telegram
 
-- Registro automático de comandos en Telegram al iniciar (`/start`, `/play`, `/status`, `/users`, `/ban`, `/unban`).
+- Registro automático de comandos en Telegram al iniciar (`/start`, `/play`, `/status`, `/info`, `/users`, `/ban`, `/unban`).
 - Validación de `WEB_APP_URL` con chequeo de `https`, dominio válido y resolución DNS.
 - Si `WEB_APP_URL` viene sin ruta (por ejemplo `https://host`), el bot completa automáticamente a `https://host/index.html`.
 - Mensaje de diagnóstico más claro cuando `/play` no puede abrir la Web App.
+
+## Comando /info
+
+Devuelve información general del proyecto:
+
+- descripción de VirtGochi,
+- autor,
+- stack principal,
+- enlace del repositorio,
+- enlace público de la Telegram Web App.
