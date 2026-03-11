@@ -5,7 +5,7 @@ Interfaz visual retro con sprites y animaciones.
 ## Audio de fondo (retro)
 
 - La Web App intenta reproducir música al abrir el juego.
-- Playlist secuencial de 9 pistas (al terminar una, inicia la siguiente).
+- Playlist aleatoria de 9 pistas (al terminar una, inicia otra al azar).
 - Incluye 6 pistas extra estilo retro/chiptune de Kevin MacLeod:
   - `km_bit_quest.mp3`
   - `km_adventure_meme.mp3`
