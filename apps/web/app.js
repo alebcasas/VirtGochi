@@ -1,5 +1,9 @@
 const PETS = ["Tortuga", "Canario", "Periquito", "Cacatua", "Agapornis", "Iguana", "Geco", "Serpiente", "Gallina", "Pato"];
 const KEY = "virtgochi_state_v2";
+const GAME_MUSIC_SOURCES = [
+  "assets/audio/virtgochi_theme.wav",
+  "assets/audio/virtgochi_theme.mid"
+];
 
 const PET_STYLES = {
   Tortuga: { color: "#4f8f4f", eye: "#ffffff", shape: "shell" },
@@ -26,8 +30,12 @@ const alertsEl = document.getElementById("alerts");
 const moodEl = document.getElementById("mood");
 const statsEl = document.getElementById("stats");
 const actionsEl = document.getElementById("actions");
+const musicBtn = document.getElementById("musicBtn");
 const canvas = document.getElementById("screen");
 const ctx = canvas.getContext("2d");
+
+let gameMusic = null;
+let musicInitDone = false;
 
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
 const MOOD_PRESETS = {
@@ -45,6 +53,57 @@ PETS.forEach((p) => {
   o.textContent = p;
   petType.appendChild(o);
 });
+
+function tryPlayMusic() {
+  if (!gameMusic) return;
+  const result = gameMusic.play();
+  if (result && typeof result.catch === "function") {
+    result.catch(() => {
+      // El navegador o WebView puede bloquear autoplay hasta interacción.
+    });
+  }
+}
+
+function updateMusicButtonLabel() {
+  if (!musicBtn || !gameMusic) return;
+  musicBtn.textContent = gameMusic.paused ? "🔊 Activar música" : "🔇 Silenciar música";
+}
+
+function tryResumeMusic() {
+  if (!gameMusic || !gameMusic.paused) return;
+  tryPlayMusic();
+  updateMusicButtonLabel();
+  if (!gameMusic.paused) {
+    document.removeEventListener("pointerdown", tryResumeMusic);
+    document.removeEventListener("touchstart", tryResumeMusic);
+    document.removeEventListener("keydown", tryResumeMusic);
+  }
+}
+
+function initGameMusic() {
+  if (musicInitDone) return;
+  musicInitDone = true;
+
+  gameMusic = new Audio();
+  gameMusic.src = GAME_MUSIC_SOURCES[0];
+  gameMusic.loop = true;
+  gameMusic.volume = 0.35;
+  gameMusic.preload = "auto";
+
+  gameMusic.addEventListener("error", () => {
+    if (gameMusic.src.includes("virtgochi_theme.wav")) {
+      gameMusic.src = GAME_MUSIC_SOURCES[1];
+      tryPlayMusic();
+      updateMusicButtonLabel();
+    }
+  });
+
+  tryPlayMusic();
+  updateMusicButtonLabel();
+  document.addEventListener("pointerdown", tryResumeMusic);
+  document.addEventListener("touchstart", tryResumeMusic, { passive: true });
+  document.addEventListener("keydown", tryResumeMusic);
+}
 
 function load() {
   try {
@@ -506,6 +565,8 @@ function render() {
 
   setup.classList.add("hidden");
   game.classList.remove("hidden");
+  musicBtn.classList.remove("hidden");
+  updateMusicButtonLabel();
 
   const now = Date.now();
   const remain = (s.hatchAt || now) - now;
@@ -572,6 +633,16 @@ actionsEl.addEventListener("click", (e) => {
   action(btn.dataset.action);
 });
 
+musicBtn.addEventListener("click", () => {
+  if (!gameMusic) return;
+  if (gameMusic.paused) {
+    tryPlayMusic();
+  } else {
+    gameMusic.pause();
+  }
+  updateMusicButtonLabel();
+});
+
 let t = 0;
 function loop() {
   const s = load();
@@ -591,5 +662,6 @@ function loop() {
 }
 
 render();
+initGameMusic();
 setInterval(render, 5000);
 loop();

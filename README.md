@@ -17,6 +17,8 @@ El usuario crea una mascota ovípara, la cuida con acciones diarias y consulta s
 - Sistema de necesidades: hambre, sed, felicidad, energía, higiene, disciplina, salud.
 - Riesgo de enfermedad por descuido.
 - Acciones de cuidado: alimentar, agua, jugar, limpiar, medicina, dormir, disciplinar, elogiar.
+- Música retro de fondo al abrir el juego (prioriza WAV para compatibilidad móvil/WebView, con fallback MIDI).
+- Botón en juego para activar/silenciar música manualmente.
 - Sincronización Web App -> bot para comando `/status`.
 - Comandos de moderación: `/users`, `/ban`, `/unban` (solo admins).
 
