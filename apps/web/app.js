@@ -36,6 +36,7 @@ const ctx = canvas.getContext("2d");
 
 let gameMusic = null;
 let musicInitDone = false;
+let musicSourceIndex = 0;
 
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
 const MOOD_PRESETS = {
@@ -64,6 +65,25 @@ function tryPlayMusic() {
   }
 }
 
+function pickSupportedMusicSource() {
+  const tester = document.createElement("audio");
+  const candidates = [
+    { path: GAME_MUSIC_SOURCES[0], mime: "audio/wav" },
+    { path: GAME_MUSIC_SOURCES[1], mime: "audio/midi" }
+  ];
+
+  const firstSupported = candidates.findIndex((c) => {
+    try {
+      return !!tester.canPlayType(c.mime);
+    } catch {
+      return false;
+    }
+  });
+
+  musicSourceIndex = firstSupported >= 0 ? firstSupported : 0;
+  return candidates[musicSourceIndex].path;
+}
+
 function updateMusicButtonLabel() {
   if (!musicBtn || !gameMusic) return;
   musicBtn.textContent = gameMusic.paused ? "🔊 Activar música" : "🔇 Silenciar música";
@@ -84,25 +104,53 @@ function initGameMusic() {
   if (musicInitDone) return;
   musicInitDone = true;
 
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.ready();
+  }
+
   gameMusic = new Audio();
-  gameMusic.src = GAME_MUSIC_SOURCES[0];
+  gameMusic.src = pickSupportedMusicSource();
   gameMusic.loop = true;
   gameMusic.volume = 0.35;
   gameMusic.preload = "auto";
+  gameMusic.playsInline = true;
 
   gameMusic.addEventListener("error", () => {
-    if (gameMusic.src.includes("virtgochi_theme.wav")) {
-      gameMusic.src = GAME_MUSIC_SOURCES[1];
+    if (musicSourceIndex < GAME_MUSIC_SOURCES.length - 1) {
+      musicSourceIndex += 1;
+      gameMusic.src = GAME_MUSIC_SOURCES[musicSourceIndex];
       tryPlayMusic();
       updateMusicButtonLabel();
     }
   });
 
-  tryPlayMusic();
+  // Warmup: autoplay silencioso para aumentar chances en WebView móviles.
+  gameMusic.muted = true;
+  const warmup = gameMusic.play();
+  if (warmup && typeof warmup.then === "function") {
+    warmup.then(() => {
+      gameMusic.muted = false;
+      updateMusicButtonLabel();
+    }).catch(() => {
+      gameMusic.muted = false;
+      tryPlayMusic();
+      updateMusicButtonLabel();
+    });
+  } else {
+    gameMusic.muted = false;
+    tryPlayMusic();
+  }
+
   updateMusicButtonLabel();
   document.addEventListener("pointerdown", tryResumeMusic);
+  document.addEventListener("click", tryResumeMusic);
   document.addEventListener("touchstart", tryResumeMusic, { passive: true });
   document.addEventListener("keydown", tryResumeMusic);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      tryResumeMusic();
+    }
+  });
 }
 
 function load() {
