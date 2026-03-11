@@ -1,6 +1,7 @@
 const PETS = ["Tortuga", "Canario", "Periquito", "Cacatua", "Agapornis", "Iguana", "Geco", "Serpiente", "Gallina", "Pato"];
 const KEY = "virtgochi_state_v2";
 const GAME_MUSIC_SOURCES = [
+  "assets/audio/virtgochi_theme_long.mp3",
   "assets/audio/virtgochi_theme.wav",
   "assets/audio/virtgochi_theme.mid"
 ];
@@ -37,6 +38,7 @@ const ctx = canvas.getContext("2d");
 let gameMusic = null;
 let musicInitDone = false;
 let musicSourceIndex = 0;
+let userPausedByToggle = false;
 
 const CANVAS_ANIM_CLASSES = ["pet-anim-happy", "pet-anim-playful", "pet-anim-grateful", "pet-anim-sick"];
 const MOOD_PRESETS = {
@@ -68,8 +70,10 @@ function tryPlayMusic() {
 function pickSupportedMusicSource() {
   const tester = document.createElement("audio");
   const candidates = [
+    { path: GAME_MUSIC_SOURCES[0], mime: "audio/mpeg" },
     { path: GAME_MUSIC_SOURCES[0], mime: "audio/wav" },
-    { path: GAME_MUSIC_SOURCES[1], mime: "audio/midi" }
+    { path: GAME_MUSIC_SOURCES[1], mime: "audio/wav" },
+    { path: GAME_MUSIC_SOURCES[2], mime: "audio/midi" }
   ];
 
   const firstSupported = candidates.findIndex((c) => {
@@ -90,6 +94,7 @@ function updateMusicButtonLabel() {
 }
 
 function tryResumeMusic() {
+  if (userPausedByToggle) return;
   if (!gameMusic || !gameMusic.paused) return;
   tryPlayMusic();
   updateMusicButtonLabel();
@@ -143,7 +148,6 @@ function initGameMusic() {
 
   updateMusicButtonLabel();
   document.addEventListener("pointerdown", tryResumeMusic);
-  document.addEventListener("click", tryResumeMusic);
   document.addEventListener("touchstart", tryResumeMusic, { passive: true });
   document.addEventListener("keydown", tryResumeMusic);
   document.addEventListener("visibilitychange", () => {
@@ -684,8 +688,10 @@ actionsEl.addEventListener("click", (e) => {
 musicBtn.addEventListener("click", () => {
   if (!gameMusic) return;
   if (gameMusic.paused) {
+    userPausedByToggle = false;
     tryPlayMusic();
   } else {
+    userPausedByToggle = true;
     gameMusic.pause();
   }
   updateMusicButtonLabel();
